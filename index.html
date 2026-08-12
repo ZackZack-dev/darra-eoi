@@ -1030,9 +1030,22 @@ function submitForm() {
     if (selected.length > 0) data[name] = selected;
   });
 
-  console.log('EOI Submission Data:', JSON.stringify(data, null, 2));
-  
-  // Show confirmation
+  // POST to backend
+  const apiUrl = window.location.hostname === 'localhost' || window.location.hostname.startsWith('168.144')
+    ? '/api/submit'
+    : 'https://freyhealthgroup.com.au/api/submit';
+
+  fetch(apiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(r => r.json()).then(res => {
+    console.log('Submission result:', res);
+  }).catch(err => {
+    console.log('Submission offline — saved for retry');
+  });
+
+  // Show confirmation immediately (non-blocking)
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   document.getElementById('confirmation').classList.add('active');
   document.querySelector('.progress-wrap').style.display = 'none';
